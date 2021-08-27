@@ -1,8 +1,7 @@
 {
-  "name": "typescript-action",
+  "name": "package-json-version-updated-action",
   "version": "0.4.0",
-  "private": true,
-  "description": "TypeScript template action",
+  "description": "Github Action to check if package.json verson has changed",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -14,15 +13,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/johnnybenson/package-json-version-updated-action.git"
   },
+  "author": "Johnny Benson <me@j-hnnybens-n.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/johnnybenson/package-json-version-updated-action/issues"
+  },
+  "homepage": "https://github.com/johnnybenson/package-json-version-updated-action#readme",
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.5.0",
     "@actions/github": "^5.0.0"
@@ -33,11 +36,8 @@
     "@vercel/ncc": "^0.30.0",
     "eslint": "^7.31.0",
     "eslint-plugin-github": "^4.2.0",
-    "eslint-plugin-jest": "^24.4.0",
-    "jest": "^27.1.0",
     "js-yaml": "^4.1.0",
     "prettier": "2.2.1",
-    "ts-jest": "^27.0.3",
     "typescript": "^4.4.2"
   }
 }
