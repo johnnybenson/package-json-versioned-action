@@ -37,12 +37,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const github = __importStar(__nccwpck_require__(438));
-const wait_1 = __nccwpck_require__(817);
 const OUTPUT_HAS_UPDATED = 'has-updated';
 const OUTPUT_VERSION = 'version';
-function getPackageJson(ref, octokit) {
+function getPackageJson(path = 'package.json', ref, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        const data = (yield octokit.rest.repos.getContent(Object.assign(Object.assign({}, github.context.repo), { path: process.env['INPUT_PATH'] || 'package.json', ref }))).data;
+        const data = (yield octokit.rest.repos.getContent(Object.assign(Object.assign({}, github.context.repo), { path,
+            ref }))).data;
         const packageJSONData = data.content;
         if (!packageJSONData) {
             throw new Error(`Could not find package.json for commit ${ref}`);
@@ -53,28 +53,34 @@ function getPackageJson(ref, octokit) {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const ms = core.getInput('milliseconds');
-            // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-            core.debug(`Waiting ${ms} milliseconds ...`);
-            core.debug(new Date().toTimeString());
-            yield (0, wait_1.wait)(parseInt(ms, 10));
-            core.debug(new Date().toTimeString());
+            /**
+             * Get Workflow Input
+             */
             const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN') || process.env.GITHUB_TOKEN;
+            const PACKAGE_JSON_PATH = core.getInput('PACKAGE_JSON_PATH') || process.env.PACKAGE_JSON_PATH;
             if (typeof GITHUB_TOKEN !== 'string') {
                 throw new Error('Invalid GITHUB_TOKEN: did you forget to set it in your action config?');
             }
             const octokit = github.getOctokit(GITHUB_TOKEN);
+            /**
+             * Get current & previous commits
+             */
             const currentRef = github.context.sha;
             const previousRef = ((yield octokit.rest.repos.getCommit(Object.assign(Object.assign({}, github.context.repo), { ref: currentRef }))).data.parents[0] || {}).sha;
-            const currentPackageJSON = yield getPackageJson(currentRef, octokit);
+            /**
+             * Read current package.json
+             */
+            const currentPackageJSON = yield getPackageJson(PACKAGE_JSON_PATH, currentRef, octokit);
             core.setOutput(OUTPUT_VERSION, currentPackageJSON.version);
             if (!previousRef) {
                 core.setOutput(OUTPUT_HAS_UPDATED, true);
                 return;
             }
-            const previousPackageJSON = yield getPackageJson(previousRef, octokit);
+            /**
+             * Read previous package.json
+             */
+            const previousPackageJSON = yield getPackageJson(PACKAGE_JSON_PATH, previousRef, octokit);
             core.setOutput(OUTPUT_HAS_UPDATED, currentPackageJSON.version !== previousPackageJSON.version);
-            core.setOutput('time', new Date().toTimeString());
         }
         catch (error) {
             core.setFailed(error.message);
@@ -82,37 +88,6 @@ function run() {
     });
 }
 run();
-
-
-/***/ }),
-
-/***/ 817:
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = void 0;
-function wait(milliseconds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve) => {
-            if (isNaN(milliseconds)) {
-                throw new Error('milliseconds not a number');
-            }
-            setTimeout(() => resolve('done!'), milliseconds);
-        });
-    });
-}
-exports.wait = wait;
 
 
 /***/ }),
