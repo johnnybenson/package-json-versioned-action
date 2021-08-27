@@ -1,18 +1,18 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { wait } from './wait';
 
 const OUTPUT_HAS_UPDATED = 'has-updated';
 const OUTPUT_VERSION = 'version';
 
 async function getPackageJson(
+  path = 'package.json',
   ref: string,
   octokit: ReturnType<typeof github.getOctokit>,
 ): Promise<{ version: string }> {
   const data = (
     await octokit.rest.repos.getContent({
       ...github.context.repo,
-      path: process.env['INPUT_PATH'] || 'package.json',
+      path,
       ref,
     })
   ).data as { content: string };
@@ -28,16 +28,13 @@ async function getPackageJson(
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds');
-    // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    core.debug(`Waiting ${ms} milliseconds ...`);
-
-    core.debug(new Date().toTimeString());
-    await wait(parseInt(ms, 10));
-    core.debug(new Date().toTimeString());
-
+    /**
+     * Get Workflow Input
+     */
     const GITHUB_TOKEN =
       core.getInput('GITHUB_TOKEN') || process.env.GITHUB_TOKEN;
+    const PACKAGE_JSON_PATH =
+      core.getInput('PACKAGE_JSON_PATH') || process.env.PACKAGE_JSON_PATH;
 
     if (typeof GITHUB_TOKEN !== 'string') {
       throw new Error(
@@ -47,6 +44,9 @@ async function run(): Promise<void> {
 
     const octokit = github.getOctokit(GITHUB_TOKEN);
 
+    /**
+     * Get current & previous commits
+     */
     const currentRef = github.context.sha;
     const previousRef = (
       (
@@ -57,7 +57,14 @@ async function run(): Promise<void> {
       ).data.parents[0] || {}
     ).sha;
 
-    const currentPackageJSON = await getPackageJson(currentRef, octokit);
+    /**
+     * Read current package.json
+     */
+    const currentPackageJSON = await getPackageJson(
+      PACKAGE_JSON_PATH,
+      currentRef,
+      octokit,
+    );
     core.setOutput(OUTPUT_VERSION, currentPackageJSON.version);
 
     if (!previousRef) {
@@ -65,13 +72,18 @@ async function run(): Promise<void> {
       return;
     }
 
-    const previousPackageJSON = await getPackageJson(previousRef, octokit);
+    /**
+     * Read previous package.json
+     */
+    const previousPackageJSON = await getPackageJson(
+      PACKAGE_JSON_PATH,
+      previousRef,
+      octokit,
+    );
     core.setOutput(
       OUTPUT_HAS_UPDATED,
       currentPackageJSON.version !== previousPackageJSON.version,
     );
-
-    core.setOutput('time', new Date().toTimeString());
   } catch (error) {
     core.setFailed(error.message);
   }
