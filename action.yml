@@ -1,11 +1,26 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Package.json Version Updated Action'
+description: 'Check if package.json version is updated in the current commit'
+author: 'Johnny Benson <me@j-hnnybens-n.com>'
+
+branding:
+    icon: 'box'
+    color: 'white'
+
 inputs:
-  milliseconds: # change this
+  GITHUB_TOKEN:
+    description: 'Get this from secrets.GITHUB_TOKEN'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  PACKAGE_JSON_PATH:
+    description: 'The path to the package.json'
+    required: false
+    default: 'package.json'
+
+outputs:
+  has-updated:
+      description: 'True if package.json version has been updated'
+  version:
+      description: 'Current package.json version'
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
