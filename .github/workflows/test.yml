@@ -20,5 +20,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        id: package-json
         with:
           milliseconds: 1000
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: package.json
+      - run: echo "has-updated -- ${{ steps.package-json.outputs.has-updated }}"
+      - run: echo "version -- ${{ steps.package-json.outputs.version }}"
