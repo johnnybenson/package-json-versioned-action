@@ -1,6 +1,6 @@
 {
   "name": "package-json-version-updated-action",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Github Action to check if package.json verson has changed",
   "main": "lib/main.js",
   "scripts": {
