@@ -39,6 +39,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const OUTPUT_HAS_UPDATED = 'has-updated';
 const OUTPUT_VERSION = 'version';
+const OUTPUT_PREVIOUS_VERSION = 'previous-version';
 function getPackageJson(path = 'package.json', ref, octokit) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = (yield octokit.rest.repos.getContent(Object.assign(Object.assign({}, github.context.repo), { path,
@@ -81,6 +82,7 @@ function run() {
              */
             const previousPackageJSON = yield getPackageJson(PACKAGE_JSON_PATH, previousRef, octokit);
             core.setOutput(OUTPUT_HAS_UPDATED, currentPackageJSON.version !== previousPackageJSON.version);
+            core.setOutput(OUTPUT_PREVIOUS_VERSION, previousPackageJSON.version);
         }
         catch (error) {
             core.setFailed(error.message);

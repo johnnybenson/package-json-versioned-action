@@ -25,4 +25,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGE_JSON_PATH: package.json
       - run: echo "has-updated -- ${{ steps.package-json.outputs.has-updated }}"
+      - run: echo "previous-version -- ${{ steps.package-json.outputs.previous-version }}"
       - run: echo "version -- ${{ steps.package-json.outputs.version }}"

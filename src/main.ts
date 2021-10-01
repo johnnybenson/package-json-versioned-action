@@ -3,6 +3,7 @@ import * as github from '@actions/github';
 
 const OUTPUT_HAS_UPDATED = 'has-updated';
 const OUTPUT_VERSION = 'version';
+const OUTPUT_PREVIOUS_VERSION = 'previous-version';
 
 async function getPackageJson(
   path = 'package.json',
@@ -84,6 +85,7 @@ async function run(): Promise<void> {
       OUTPUT_HAS_UPDATED,
       currentPackageJSON.version !== previousPackageJSON.version,
     );
+    core.setOutput(OUTPUT_PREVIOUS_VERSION, previousPackageJSON.version);
   } catch (error) {
     core.setFailed(error.message);
   }
