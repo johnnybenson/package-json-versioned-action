@@ -24,5 +24,5 @@ outputs:
       description: 'Previous package.json version'
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
